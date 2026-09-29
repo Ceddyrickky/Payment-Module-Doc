@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Module</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: #ffffff;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    /* header part of the page */
+
+    header {
+      background: #1a1a1a;
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+    }
+
+    header h1 {
+      font-family: Georgia, serif;
+      font-size: 1.25rem;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    .admin-badge {
+      background: #1976d2;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    /* main content area */
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px;
+      color: #ffffff;
+    }
+
+    /* shows the total cash here */
+
+    .summary-card {
+      width: 310px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .summary-amount {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #d4a017;
+    }
+
+    .summary-label {
+      margin-top: 4px;
+      color: #aaa;
+      font-size: 0.85rem;
+    }
+
+    /* payment section */
+
+    .payment-section {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .payment-section h2 {
+      font-family: Georgia, serif;
+      font-size: 1.15rem;
+      margin-bottom: 20px;
+    }
+
+    .payment-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .order-info {
+      background: #242424;
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .order-label {
+      color: #999;
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+    }
+
+    .order-number {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .amount-due {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #d4a017;
+    }
+
+    /* payment form stuff */
+
+    .payment-form {
+      background: #242424;
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .payment-form label {
+      display: block;
+      color: #aaa;
+      font-size: 0.85rem;
+      margin-bottom: 7px;
+    }
+
+    .payment-form input {
+      width: 100%;
+      padding: 11px;
+      background: #2d2d2d;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 6px;
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+
+    /* buttons for choosing payment */
+
+    .method-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .method-btn {
+      flex: 1;
+      padding: 10px;
+      background: #333;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .method-btn:hover {
+      background: #444;
+    }
+
+    .method-btn.active {
+      background: #d4a017;
+      color: #111;
+      border-color: #d4a017;
+    }
+
+    /* this box shows the change */
+
+    .change-box {
+      background: #302a18;
+      border: 1px solid #6b5416;
+      border-radius: 6px;
+      padding: 13px;
+      margin-bottom: 15px;
+    }
+
+    .change-label {
+      color: #aaa;
+      font-size: 0.8rem;
+    }
+
+    .change-value {
+      color: #d4a017;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-top: 3px;
+    }
+
+    /* confirm button */
+
+    .confirm-btn {
+      width: 100%;
+      padding: 11px;
+      background: #d4a017;
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .confirm-btn:hover {
+      background: #e0b020;
+    }
+
+    /* card information layout */
+
+    .card-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* recent payments are shown here */
+
+    .section {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    .section h2 {
+      font-family: Georgia, serif;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .transaction-header,
+    .transaction-row {
+      display: grid;
+      grid-template-columns:
+        1.4fr
+        1.7fr
+        0.8fr
+        0.8fr
+        0.7fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .transaction-header {
+      color: #aaa;
+      font-size: 0.85rem;
+      padding: 10px 14px;
+      border-bottom: 1px solid #333;
+    }
+
+    .transaction-row {
+      padding: 12px 14px;
+      border-bottom: 1px solid #333;
+      font-size: 0.9rem;
+    }
+
+    .transaction-row:last-child {
+      border-bottom: none;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #888;
+      padding: 35px 10px;
+      font-size: 0.9rem;
+    }
+
+    /* makes the page fit smaller screens */
+
+    @media (max-width: 700px) {
+
+      .payment-content {
+        grid-template-columns: 1fr;
+      }
+
+      .transaction-header {
+        display: none;
+      }
+
+      .transaction-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        padding: 15px;
+      }
+
+      .summary-card {
+        width: 100%;
+      }
+
+      main {
+        padding: 16px;
+      }
+
+      .card-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- page header -->
+
+  <header>
+
+    <h1>Payment Module</h1>
+
+    <div class="header-right">
+
+      <span id="current-date"></span>
+
+      <span class="admin-badge">
+        ADMIN
+      </span>
+
+    </div>
+
+  </header>
+
+
+  <main>
+
+    <!-- total cash from the payments -->
+
+    <div class="summary-card">
+
+      <div
+        class="summary-amount"
+        id="total-cash"
+      >
+        ₱840
+      </div>
+
+      <div class="summary-label">
+        CASH
+      </div>
+
+    </div>
+
+
+    <!-- payment area -->
+
+    <div class="payment-section">
+
+      <h2>Payment</h2>
+
+      <div class="payment-content">
+
+        <!-- information about the current order -->
+
+        <div class="order-info">
+
+          <div class="order-label">
+            Order #
+          </div>
+
+          <div
+            class="order-number"
+            id="payment-order-number"
+          >
+            #1003
+          </div>
+
+          <div class="order-label">
+            Amount Due
+          </div>
+
+          <div
+            class="amount-due"
+            id="payment-total"
+          >
+            ₱450
+          </div>
+
+        </div>
+
+
+        <!-- where the payment is entered -->
+
+        <div class="payment-form">
+
+          <label>
+            Payment Method
+          </label>
+
+          <div class="method-buttons">
+
+            <button
+              class="method-btn active"
+              onclick="selectMethod('cash')"
+              id="cash-btn"
+            >
+              Cash
+            </button>
+
+            <button
+              class="method-btn"
+              onclick="selectMethod('card')"
+              id="card-btn"
+            >
+              Card
+            </button>
+
+          </div>
+
+
+          <!-- cash payment part -->
+
+          <div id="cash-payment">
+
+            <label>
+              Cash Received
+            </label>
+
+            <input
+              type="number"
+              id="cash-received"
+              value="500"
+              min="0"
+              oninput="calculateChange()"
+            >
+
+            <div class="change-box">
+
+              <div class="change-label">
+                Change
+              </div>
+
+              <div
+                class="change-value"
+                id="change-value"
+              >
+                ₱50
+              </div>
+
+            </div>
+
+            <button
+              class="confirm-btn"
+              onclick="confirmCashPayment()"
+            >
+              Confirm Cash Payment
+            </button>
+
+          </div>
+
+
+          <!-- card payment part -->
+
+          <div
+            id="card-payment"
+            style="display:none;"
+          >
+
+            <label>
+              Card Number
+            </label>
+
+            <input
+              type="text"
+              id="card-number"
+              placeholder="Enter card number"
+              maxlength="19"
+            >
+
+            <label>
+              Cardholder Name
+            </label>
+
+            <input
+              type="text"
+              id="card-name"
+              placeholder="Enter cardholder name"
+            >
+
+            <div class="card-row">
+
+              <div>
+
+                <label>
+                  Expiry Date
+                </label>
+
+                <input
+                  type="text"
+                  id="card-expiry"
+                  placeholder="MM/YY"
+                  maxlength="5"
+                >
+
+              </div>
+
+              <div>
+
+                <label>
+                  CVV
+                </label>
+
+                <input
+                  type="password"
+                  id="card-cvv"
+                  placeholder="CVV"
+                  maxlength="4"
+                >
+
+              </div>
+
+            </div>
+
+
+            <button
+              class="confirm-btn"
+              onclick="confirmCardPayment()"
+            >
+              Confirm Card Payment
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- list of the latest transactions -->
+
+    <div class="section">
+
+      <h2>
+        Recent Transactions
+      </h2>
+
+      <div class="transaction-header">
+
+        <div>
+          Order #
+        </div>
+
+        <div>
+          Date
+        </div>
+
+        <div>
+          Method
+        </div>
+
+        <div>
+          Amount
+        </div>
+
+        <div>
+          Change
+        </div>
+
+      </div>
+
+
+      <div id="transaction-list"></div>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    // data used by the payment module
+
+    /*
+      This array keeps the payments that were already completed.
+      I am using an array here because the transactions are stored
+      one after another and can be checked with a loop.
+      The array operations are done manually for the project.
+    */
+
+    let transactions = [
+
+      {
+        orderNo: "#1001",
+        date: "9/22/2026, 6:45:10 PM",
+        method: "cash",
+        amount: 280,
+        change: 220
+      },
+
+      {
+        orderNo: "#1002",
+        date: "9/22/2026, 6:50:32 PM",
+        method: "cash",
+        amount: 560,
+        change: 40
+      }
+
+    ];
+
+
+    /*
+      This is the order that is being paid right now.
+      For this demo the order number and total are just sample data.
+    */
+
+    let currentOrder = {
+
+      orderNo: "#1003",
+
+      total: 450
+
+    };
+
+
+    /*
+      Keeps track of which payment method the user picked.
+      It starts with cash.
+    */
+
+    let selectedMethod = "cash";
+
+
+    // small functions made for the required operations
+
+    /*
+      Removes extra spaces by checking the characters ourself.
+      This is here so the code does not depend on trim().
+    */
+
+    function manualTrim(text) {
+
+      let start = 0;
+      let end = text.length - 1;
+
+      while (
+        start <= end &&
+        text[start] === " "
+      ) {
+        start++;
+      }
+
+      while (
+        end >= start &&
+        text[end] === " "
+      ) {
+        end--;
+      }
+
+      let result = "";
+
+      for (let i = start; i <= end; i++) {
+        result += text[i];
+      }
+
+      return result;
+    }
+
+
+    /*
+      Changes number text into an actual number.
+      The conversion is done by checking each character manually.
+    */
+
+    function digitValue(character) {
+
+      if (character === "0") return 0;
+      if (character === "1") return 1;
+      if (character === "2") return 2;
+      if (character === "3") return 3;
+      if (character === "4") return 4;
+      if (character === "5") return 5;
+      if (character === "6") return 6;
+      if (character === "7") return 7;
+      if (character === "8") return 8;
+      if (character === "9") return 9;
+
+      return -1;
+    }
+
+
+    function manualNumber(text) {
+
+      text = manualTrim(text);
+
+      let number = 0;
+      let decimal = false;
+      let decimalPlace = 0;
+      let sign = 1;
+      let i = 0;
+
+      if (text.length === 0) {
+        return 0;
+      }
+
+      if (text[0] === "-") {
+        sign = -1;
+        i = 1;
+      }
+
+      for (; i < text.length; i++) {
+
+        let character = text[i];
+
+        if (character === ".") {
+          decimal = true;
+        }
+        else {
+
+          let digit =
+            digitValue(character);
+
+          if (digit >= 0) {
+
+            if (decimal === false) {
+              number =
+                number * 10 + digit;
+            }
+            else {
+              decimalPlace++;
+
+              number =
+                number +
+                digit /
+                powerOfTen(decimalPlace);
+            }
+
+          }
+
+        }
+
+      }
+
+      return number * sign;
+    }
+
+
+    /*
+      Gets the power of 10 needed by the number conversion.
+      I used a loop instead of a ready made math function.
+    */
+
+    function powerOfTen(power) {
+
+      let result = 1;
+
+      for (let i = 0; i < power; i++) {
+        result = result * 10;
+      }
+
+      return result;
+    }
+
+
+    /*
+      Makes the date text that is shown at the top.
+      The date parts are put together manually.
+    */
+
+    function getMonthName(month) {
+
+      let months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ];
+
+      return months[month];
+    }
+
+
+    function getWeekdayName(day) {
+
+      let days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ];
+
+      return days[day];
+    }
+
+
+    function addLeadingZero(number) {
+
+      if (number < 10) {
+        return "0" + number;
+      }
+
+      return "" + number;
+    }
+
+
+    function getCurrentDateText() {
+
+      let now = new Date();
+
+      let weekday = getWeekdayName(
+        now.getDay()
+      );
+
+      let month = getMonthName(
+        now.getMonth()
+      );
+
+      let day = now.getDate();
+      let year = now.getFullYear();
+
+      return (
+        weekday +
+        ", " +
+        month +
+        " " +
+        day +
+        ", " +
+        year
+      );
+    }
+
+
+    function getCurrentDateTimeText() {
+
+      let now = new Date();
+
+      let month =
+        now.getMonth() + 1;
+
+      let day =
+        now.getDate();
+
+      let year =
+        now.getFullYear();
+
+      let hour =
+        now.getHours();
+
+      let minute =
+        now.getMinutes();
+
+      let second =
+        now.getSeconds();
+
+      let period = "AM";
+
+      if (hour >= 12) {
+        period = "PM";
+      }
+
+      if (hour === 0) {
+        hour = 12;
+      }
+      else if (hour > 12) {
+        hour = hour - 12;
+      }
+
+      return (
+        month +
+        "/" +
+        day +
+        "/" +
+        year +
+        ", " +
+        hour +
+        ":" +
+        addLeadingZero(minute) +
+        ":" +
+        addLeadingZero(second) +
+        " " +
+        period
+      );
+    }
+
+
+    // show todays date on the header
+
+    document.getElementById(
+      "current-date"
+    ).textContent =
+      getCurrentDateText();
+
+
+    // change between cash and card
+
+    function selectMethod(method) {
+
+      selectedMethod = method;
+
+
+      /*
+        First remove the active look from the buttons
+        so only the selected one stays highlighted.
+      */
+
+      let buttons =
+        document.getElementsByClassName(
+          "method-btn"
+        );
+
+      for (let i = 0; i < buttons.length; i++) {
+
+        buttons[i].className =
+          "method-btn";
+
+      }
+
+
+      /*
+        Add the active style to the button that was clicked.
+      */
+
+      document.getElementById(
+        method + "-btn"
+      ).className =
+        "method-btn active";
+
+
+      /*
+        Hide both forms first before showing the one we need.
+      */
+
+      document.getElementById(
+        "cash-payment"
+      ).style.display = "none";
+
+      document.getElementById(
+        "card-payment"
+      ).style.display = "none";
+
+
+      /*
+        Now show the payment form that matches the selected method.
+      */
+
+      document.getElementById(
+        method + "-payment"
+      ).style.display = "block";
+
+    }
+
+
+    // calculate the change for cash payment
+
+    function calculateChange() {
+
+      const cash =
+
+        manualNumber(
+          document.getElementById(
+            "cash-received"
+          ).value
+        );
+
+
+      const total =
+        currentOrder.total;
+
+
+      /*
+        Change is just the cash given minus the amount due.
+        This also tells us if the customer gave enough money.
+      */
+
+      const change =
+        cash - total;
+
+
+      if (cash < total) {
+
+        document.getElementById(
+          "change-value"
+        ).textContent =
+          "Insufficient";
+
+      }
+
+      else {
+
+        document.getElementById(
+          "change-value"
+        ).textContent =
+          "₱" + change;
+
+      }
+
+    }
+
+
+    // check and confirm a cash payment
+
+    function confirmCashPayment() {
+
+      const cash =
+
+        manualNumber(
+          document.getElementById(
+            "cash-received"
+          ).value
+        );
+
+
+      const total =
+        currentOrder.total;
+
+
+      /*
+        Check first if the cash is enough.
+        We should not save the payment if it is not.
+      */
+
+      if (cash < total) {
+
+        alert(
+          "Cash received is not enough."
+        );
+
+        return;
+
+      }
+
+
+      const change =
+        cash - total;
+
+
+      /*
+        If everything is okay, make the transaction record.
+      */
+
+      createTransaction(
+        "cash",
+        total,
+        change
+      );
+
+    }
+
+
+    // check the card payment
+
+    function confirmCardPayment() {
+
+      const cardNumber =
+
+        manualTrim(
+          document.getElementById(
+            "card-number"
+          ).value
+        );
+
+
+      const cardName =
+
+        manualTrim(
+          document.getElementById(
+            "card-name"
+          ).value
+        );
+
+
+      const expiry =
+
+        manualTrim(
+          document.getElementById(
+            "card-expiry"
+          ).value
+        );
+
+
+      const cvv =
+
+        manualTrim(
+          document.getElementById(
+            "card-cvv"
+          ).value
+        );
+
+
+      /*
+        Check the card inputs first.
+        All of them need to have something in them.
+      */
+
+      if (
+        cardNumber === "" ||
+        cardName === "" ||
+        expiry === "" ||
+        cvv === ""
+      ) {
+
+        alert(
+          "Please complete the card information."
+        );
+
+        return;
+
+      }
+
+
+      /*
+        This demo does not connect to a real card machine,
+        so a filled out card form counts as a payment.
+      */
+
+      createTransaction(
+        "card",
+        currentOrder.total,
+        0
+      );
+
+    }
+
+
+    // create a new completed transaction
+
+    function createTransaction(
+      method,
+      amount,
+      change
+    ) {
+
+      /*
+        Make the transaction data that will be saved.
+      */
+
+      const transaction = {
+
+        orderNo:
+          currentOrder.orderNo,
+
+        date:
+          getCurrentDateTimeText(),
+
+        method:
+          method,
+
+        amount:
+          amount,
+
+        change:
+          change
+
+      };
+
+
+      // add the transaction into the array
+
+      /*
+        Put the new transaction at the end of the array.
+        This is done by assigning the next position manually,
+        instead of using push.
+      */
+
+      transactions[
+        transactions.length
+      ] =
+        transaction;
+
+
+      // refresh the information shown on the page
+
+      renderTransactions();
+
+      updateTotalCash();
+
+
+      alert(
+        "Payment completed successfully!"
+      );
+
+
+      /*
+        Make a new sample order so another payment
+        can be tested after this one.
+      */
+
+      currentOrder = {
+
+        orderNo:
+          "#100" +
+          (transactions.length + 1),
+
+        total:
+          350
+
+      };
+
+
+      /*
+        Change the order number and total shown on screen.
+      */
+
+      document.getElementById(
+        "payment-order-number"
+      ).textContent =
+        currentOrder.orderNo;
+
+
+      document.getElementById(
+        "payment-total"
+      ).textContent =
+        "₱" + currentOrder.total;
+
+
+      /*
+        Put the cash field back to the sample amount.
+      */
+
+      document.getElementById(
+        "cash-received"
+      ).value = 500;
+
+
+      /*
+        Clear the card information for the next payment.
+      */
+
+      document.getElementById(
+        "card-number"
+      ).value = "";
+
+      document.getElementById(
+        "card-name"
+      ).value = "";
+
+      document.getElementById(
+        "card-expiry"
+      ).value = "";
+
+      document.getElementById(
+        "card-cvv"
+      ).value = "";
+
+
+      /*
+        Go back to cash so the next sample starts from the default.
+      */
+
+      selectMethod("cash");
+
+      calculateChange();
+
+    }
+
+
+    // display the transaction records
+
+    function renderTransactions() {
+
+      const list =
+        document.getElementById(
+          "transaction-list"
+        );
+
+
+      if (transactions.length === 0) {
+
+        list.innerHTML =
+
+          '<div class="empty-message">' +
+          'No transactions found' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      /*
+        Go through the transaction array one by one
+        and make a row for each payment.
+        This loop is used instead of map or join.
+      */
+
+      let html = "";
+
+      for (
+        let i = 0;
+        i < transactions.length;
+        i++
+      ) {
+
+        let transaction =
+          transactions[i];
+
+
+        html +=
+
+          '<div class="transaction-row">' +
+
+            '<div>' +
+              transaction.orderNo +
+            '</div>' +
+
+            '<div>' +
+              transaction.date +
+            '</div>' +
+
+            '<div>' +
+              transaction.method +
+            '</div>' +
+
+            '<div>' +
+              '₱' + transaction.amount +
+            '</div>' +
+
+            '<div>' +
+              '₱' + transaction.change +
+            '</div>' +
+
+          '</div>';
+
+      }
+
+
+      list.innerHTML =
+        html;
+
+    }
+
+
+    // calculate all completed cash amounts
+
+    function updateTotalCash() {
+
+      let total = 0;
+
+
+      /*
+        Go through every transaction and add the amounts together.
+        This gives the total of the completed payments.
+      */
+
+      for (
+        let i = 0;
+        i < transactions.length;
+        i++
+      ) {
+
+        total +=
+          transactions[i].amount;
+
+      }
+
+
+      document.getElementById(
+        "total-cash"
+      ).textContent =
+        "₱" + total;
+
+    }
+
+
+    // load the starting information when the page opens
+
+    renderTransactions();
+
+    updateTotalCash();
+
+    calculateChange();
+
+  </script>
+
+</body>
+</html>
